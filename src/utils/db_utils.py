@@ -86,6 +86,12 @@ class DatabaseConnection:
     
     def get_table_sample(self, table_name: str, limit: int = 5) -> pd.DataFrame:
         """Get sample rows from a table"""
+        # Validate table name against existing tables to prevent SQL injection
+        valid_tables = self.get_all_tables()
+        if table_name not in valid_tables:
+            raise ValueError(f"Invalid table name: {table_name}")
+        
+        # Safe to use string formatting after validation
         query = f"SELECT * FROM {table_name} LIMIT %s"
         return self.execute_query_df(query, (limit,))
     

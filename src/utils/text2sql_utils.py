@@ -88,9 +88,14 @@ SQL Query:"""
         
         for line in lines:
             line_upper = line.strip().upper()
+            # Only allow read-only operations for safety
             if any(line_upper.startswith(keyword) for keyword in 
-                   ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'WITH']):
+                   ['SELECT', 'WITH']):
                 in_query = True
+            # Reject potentially dangerous operations
+            elif any(line_upper.startswith(keyword) for keyword in
+                    ['INSERT', 'UPDATE', 'DELETE', 'DROP', 'ALTER', 'CREATE', 'TRUNCATE']):
+                raise ValueError(f"Unsafe SQL operation detected: {line_upper.split()[0]}")
             
             if in_query:
                 sql_lines.append(line)

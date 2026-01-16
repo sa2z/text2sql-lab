@@ -104,13 +104,14 @@ def store_document_with_embedding(db_connection, title: str, content: str,
     embedder = EmbeddingGenerator()
     embedding = embedder.generate_embedding(content)
     
-    # Insert document
+    # Insert document using execute_query for consistency
     query = """
     INSERT INTO documents (title, content, document_type, metadata, embedding)
     VALUES (%s, %s, %s, %s, %s)
     RETURNING document_id
     """
     
+    # Use connection context for proper resource management
     conn = db_connection.get_connection()
     try:
         with conn.cursor() as cursor:
@@ -122,6 +123,9 @@ def store_document_with_embedding(db_connection, title: str, content: str,
             doc_id = cursor.fetchone()[0]
         conn.commit()
         return doc_id
+    except Exception as e:
+        conn.rollback()
+        raise Exception(f"Failed to store document: {str(e)}")
     finally:
         conn.close()
 

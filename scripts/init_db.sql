@@ -231,5 +231,11 @@ INSERT INTO documents (title, content, document_type, metadata) VALUES
     ('LangChain Agent Patterns', 'Common agent patterns in LangChain: ReAct (Reasoning + Acting), Plan-and-Execute, Self-Ask, Tree of Thoughts. Each pattern has different use cases and performance characteristics.', 'Reference', '{"framework": "langchain", "version": "0.1.0"}'),
     ('Monitoring and Observability', 'Key metrics to monitor in LLM applications: latency, token usage, cost, error rate, user satisfaction. Use tools like Langfuse for comprehensive monitoring.', 'Guide', '{"topic": "observability"}');
 
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO text2sql;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO text2sql;
+-- Grant appropriate privileges for text2sql application
+-- Read access for all tables
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO text2sql;
+-- Write access only for logging and monitoring tables
+GRANT INSERT ON query_history TO text2sql;
+GRANT INSERT, UPDATE ON documents, lexicon TO text2sql;
+-- Sequence access for logging
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO text2sql;

@@ -44,43 +44,47 @@ echo ""
 echo "Waiting for services to be ready..."
 sleep 5
 
-# Check service health
 echo ""
 echo "Checking service status..."
 
-# Check PostgreSQL
-if docker-compose ps postgres | grep -q "Up"; then
-    echo "✓ PostgreSQL is running"
+# Check PostgreSQL with pg_isready
+echo -n "PostgreSQL: "
+if docker exec text2sql-postgres pg_isready -U text2sql > /dev/null 2>&1; then
+    echo "✓ Ready"
 else
-    echo "❌ PostgreSQL is not running"
+    echo "⚠ Not ready yet (still initializing)"
 fi
 
-# Check Ollama
-if docker-compose ps ollama | grep -q "Up"; then
-    echo "✓ Ollama is running"
+# Check Ollama with API call
+echo -n "Ollama: "
+if docker exec text2sql-ollama curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
+    echo "✓ Ready"
 else
-    echo "❌ Ollama is not running"
+    echo "⚠ Not ready yet"
 fi
 
-# Check Jupyter
-if docker-compose ps jupyter | grep -q "Up"; then
-    echo "✓ JupyterLab is running"
+# Check Jupyter with HTTP request
+echo -n "JupyterLab: "
+if curl -s -o /dev/null http://localhost:8888 2>&1; then
+    echo "✓ Ready"
 else
-    echo "❌ JupyterLab is not running"
+    echo "⚠ Not ready yet"
 fi
 
 # Check Open-WebUI
-if docker-compose ps open-webui | grep -q "Up"; then
-    echo "✓ Open-WebUI is running"
+echo -n "Open-WebUI: "
+if curl -s -o /dev/null http://localhost:3000 2>&1; then
+    echo "✓ Ready"
 else
-    echo "❌ Open-WebUI is not running"
+    echo "⚠ Not ready yet"
 fi
 
 # Check Langfuse
-if docker-compose ps langfuse-server | grep -q "Up"; then
-    echo "✓ Langfuse is running"
+echo -n "Langfuse: "
+if curl -s -o /dev/null http://localhost:3001 2>&1; then
+    echo "✓ Ready"
 else
-    echo "❌ Langfuse is not running"
+    echo "⚠ Not ready yet"
 fi
 
 echo ""
