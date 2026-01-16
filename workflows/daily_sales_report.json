@@ -1,0 +1,31 @@
+{
+  "name": "Daily Sales Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{"field": "cronExpression", "expression": "0 9 * * *"}]
+        }
+      },
+      "name": "Every Day at 9AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DATE(sale_date) as date, SUM(total_amount) as total, COUNT(*) as orders FROM sales WHERE sale_date >= CURRENT_DATE - INTERVAL '1 day' GROUP BY DATE(sale_date)"
+      },
+      "name": "Query Sales",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {
+    "Every Day at 9AM": {
+      "main": [[{"node": "Query Sales", "type": "main", "index": 0}]]
+    }
+  }
+}
