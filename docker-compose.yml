@@ -160,11 +160,43 @@ services:
     networks:
       - text2sql-network
 
+  # n8n for workflow automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: text2sql-n8n
+    ports:
+      - "55678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin123
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:55678
+      # PostgreSQL connection
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=text2sql_db
+      - POSTGRES_USER=text2sql
+      - POSTGRES_PASSWORD=text2sql123
+      # Ollama connection
+      - OLLAMA_BASE_URL=http://ollama:11434
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - text2sql-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   ollama_data:
   open_webui_data:
   clickhouse_data:
+  n8n_data:
   # vllm_data:
 
 networks:
