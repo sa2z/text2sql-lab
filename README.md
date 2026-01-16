@@ -42,11 +42,11 @@ docker-compose logs -f
 
 서비스가 시작되면 다음 URL로 접속할 수 있습니다:
 
-- **JupyterLab**: http://localhost:8888 (토큰 없이 접속)
-- **Open-WebUI**: http://localhost:3000
-- **Langfuse**: http://localhost:3001
-- **PostgreSQL**: localhost:5432
-- **Ollama API**: http://localhost:11434
+- **JupyterLab**: http://localhost:8889 (토큰 없이 접속)
+- **Open-WebUI**: http://localhost:3002
+- **Langfuse**: http://localhost:3003
+- **PostgreSQL**: localhost:5433
+- **Ollama API**: http://localhost:11435
 
 ### 4. LLM 모델 설치
 
@@ -195,7 +195,7 @@ viz.show()
 
 ### Langfuse 설정
 
-1. http://localhost:3001 접속
+1. http://localhost:3003 접속
 2. 계정 생성
 3. API 키 생성
 4. `.env` 파일에 키 추가

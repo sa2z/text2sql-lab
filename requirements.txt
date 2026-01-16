@@ -12,10 +12,10 @@ sqlalchemy==2.0.23
 pgvector==0.2.4
 
 # LLM and AI
-langchain==0.1.0
+langchain>=0.3.0  # Updated to ensure compatibility with langchain-community
 langchain-community==0.3.27  # Updated from 0.0.10 - fixes XXE, SSRF, and pickle deserialization vulnerabilities
 langchain-experimental==0.0.61  # Updated from 0.0.47 - fixes arbitrary code execution vulnerabilities
-langgraph==0.0.20
+langgraph>=0.2.0  # Updated to ensure compatibility with langchain 0.3+
 openai==1.6.1
 tiktoken==0.5.2
 
