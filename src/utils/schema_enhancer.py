@@ -241,7 +241,9 @@ class SchemaEnhancer:
             # 컬럼 정보
             columns = []
             for key, col_info in self._column_cache.items():
-                tbl, col = key.split('.')
+                if '.' not in key:
+                    continue
+                tbl, col = key.split('.', 1)  # 첫 번째 점만 분리 (테이블/컬럼명에 점이 있을 수 있음)
                 if tbl == table_name:
                     columns.append({
                         'column_name': col,
@@ -510,7 +512,14 @@ class SchemaEnhancer:
 
 # 사용 예제
 if __name__ == '__main__':
-    from db_utils import DatabaseConnection
+    try:
+        from utils.db_utils import DatabaseConnection
+    except ImportError:
+        # 직접 실행 시 경로 추가
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+        from utils.db_utils import DatabaseConnection
     
     # 데이터베이스 연결
     db = DatabaseConnection()
