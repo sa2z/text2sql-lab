@@ -14,18 +14,26 @@ logger = logging.getLogger(__name__)
 class SchemaEnhancer:
     """데이터베이스 스키마 설명 관리 클래스"""
     
-    def __init__(self, db):
+    def __init__(self, db, lazy_load: bool = False):
         """
         Args:
             db: DatabaseConnection 인스턴스
+            lazy_load: True면 초기 캐시 로드를 건너뜀 (필요시 수동으로 로드)
         """
         self.db = db
         self._table_cache = {}
         self._column_cache = {}
-        self._load_cache()
+        if not lazy_load:
+            self._load_cache()
     
     def _load_cache(self):
-        """데이터베이스에서 스키마 설명을 캐시로 로드"""
+        """
+        데이터베이스에서 스키마 설명을 캐시로 로드
+        
+        Note:
+            대용량 데이터베이스의 경우 성능 영향을 고려하여
+            필요한 테이블만 선택적으로 로드하거나 lazy_load=True 사용 권장
+        """
         try:
             # 테이블 설명 캐시 로드
             table_query = """
@@ -70,6 +78,20 @@ class SchemaEnhancer:
             logger.warning(f"스키마 캐시 로드 실패: {str(e)}")
             self._table_cache = {}
             self._column_cache = {}
+    
+    def reload_cache(self):
+        """
+        캐시를 수동으로 다시 로드
+        
+        Returns:
+            성공 여부
+        """
+        try:
+            self._load_cache()
+            return True
+        except Exception as e:
+            logger.error(f"캐시 재로드 실패: {str(e)}")
+            return False
     
     def add_column_description(self, table_name: str, column_name: str,
                               korean_name: str, description: str,
@@ -121,8 +143,17 @@ class SchemaEnhancer:
                 constraints
             ))
             
-            # 캐시 업데이트
-            self._load_cache()
+            # 캐시 점진적 업데이트
+            key = f"{table_name}.{column_name}"
+            self._column_cache[key] = {
+                'korean_name': korean_name,
+                'description': description,
+                'business_meaning': business_meaning,
+                'example_values': example_values or [],
+                'data_type': data_type,
+                'constraints': constraints,
+                'related_columns': []
+            }
             
             logger.info(f"컬럼 설명 추가 완료: {table_name}.{column_name}")
             return True
@@ -174,8 +205,14 @@ class SchemaEnhancer:
                 common_queries or []
             ))
             
-            # 캐시 업데이트
-            self._load_cache()
+            # 캐시 점진적 업데이트
+            self._table_cache[table_name] = {
+                'korean_name': korean_name,
+                'description': description,
+                'business_purpose': business_purpose,
+                'related_tables': related_tables or [],
+                'common_queries': common_queries or []
+            }
             
             logger.info(f"테이블 설명 추가 완료: {table_name}")
             return True
