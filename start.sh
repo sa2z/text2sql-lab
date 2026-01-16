@@ -42,7 +42,8 @@ docker-compose up -d
 
 echo ""
 echo "Waiting for services to be ready..."
-sleep 5
+echo "(Note: Services may take 1-2 minutes to fully initialize)"
+sleep 10
 
 echo ""
 echo "Checking service status..."
@@ -92,10 +93,16 @@ echo "=========================================="
 echo "Next Steps:"
 echo "=========================================="
 echo ""
+echo "⚠️  IMPORTANT: Services are starting but may still be initializing."
+echo "   Wait 1-2 minutes before using JupyterLab."
+echo ""
 echo "1. Install an LLM model (required):"
 echo "   docker exec -it text2sql-ollama ollama pull llama2"
 echo ""
-echo "2. Access services:"
+echo "2. Verify database is ready:"
+echo "   docker exec -it text2sql-postgres psql -U text2sql -d text2sql_db -c 'SELECT COUNT(*) FROM employees;'"
+echo ""
+echo "3. Access services:"
 echo "   - JupyterLab: http://localhost:8888"
 echo "   - Open-WebUI: http://localhost:3000"
 echo "   - Langfuse:   http://localhost:3001"
