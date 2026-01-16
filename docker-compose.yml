@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: text2sql123
       POSTGRES_DB: text2sql_db
     ports:
-      - "15432:5432"
+      - "55433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
@@ -27,7 +27,7 @@ services:
     image: ollama/ollama:latest
     container_name: text2sql-ollama
     ports:
-      - "15433:11434"
+      - "51435:11434"
     volumes:
       - ollama_data:/root/.ollama
     environment:
@@ -47,7 +47,7 @@ services:
     image: ghcr.io/open-webui/open-webui:main
     container_name: text2sql-open-webui
     ports:
-      - "15434:8080"
+      - "53001:8080"
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
       - WEBUI_SECRET_KEY=text2sql-secret-key-change-in-production
@@ -63,10 +63,10 @@ services:
     image: langfuse/langfuse:latest
     container_name: text2sql-langfuse
     ports:
-      - "15435:3000"
+      - "53002:3000"
     environment:
       - DATABASE_URL=postgresql://text2sql:text2sql123@postgres:5432/langfuse_db
-      - NEXTAUTH_URL=http://localhost:15435
+      - NEXTAUTH_URL=http://localhost:53002
       - NEXTAUTH_SECRET=langfuse-secret-key-change-in-production
       - SALT=langfuse-salt-change-in-production
     depends_on:
@@ -104,7 +104,7 @@ services:
       dockerfile: Dockerfile.jupyter
     container_name: text2sql-jupyter
     ports:
-      - "15436:8888"
+      - "58889:8888"
     environment:
       - JUPYTER_ENABLE_LAB=yes
       - POSTGRES_HOST=postgres
