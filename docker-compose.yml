@@ -58,53 +58,10 @@ services:
     networks:
       - text2sql-network
 
-  # ClickHouse for Langfuse analytics
-  clickhouse:
-    image: clickhouse/clickhouse-server:latest
-    container_name: text2sql-clickhouse
-    ports:
-      - "58123:8123"
-      - "59000:9000"
-    environment:
-      - CLICKHOUSE_DB=langfuse
-      - CLICKHOUSE_USER=langfuse
-      - CLICKHOUSE_PASSWORD=langfuse123
-      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
-    volumes:
-      - clickhouse_data:/var/lib/clickhouse
-    healthcheck:
-      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - text2sql-network
-
-  # Langfuse for LLM observability and monitoring
-  langfuse-server:
-    image: langfuse/langfuse:latest
-    container_name: text2sql-langfuse
-    ports:
-      - "53002:3000"
-    environment:
-      - DATABASE_URL=postgresql://text2sql:text2sql123@postgres:5432/langfuse_db
-      - NEXTAUTH_URL=http://localhost:53002
-      - NEXTAUTH_SECRET=langfuse-secret-key-change-in-production
-      - SALT=langfuse-salt-change-in-production
-      - CLICKHOUSE_URL=http://clickhouse:8123
-      - CLICKHOUSE_USER=langfuse
-      - CLICKHOUSE_PASSWORD=langfuse123
-      - LANGFUSE_INIT_ORG_ID=text2sql-org
-      - LANGFUSE_INIT_ORG_NAME=Text2SQL Lab
-      - LANGFUSE_INIT_PROJECT_ID=text2sql-project
-      - LANGFUSE_INIT_PROJECT_NAME=Text2SQL Project
-    depends_on:
-      postgres:
-        condition: service_healthy
-      clickhouse:
-        condition: service_healthy
-    networks:
-      - text2sql-network
+  # Langfuse for LLM observability (OPTIONAL - Install separately)
+  # See docs/LANGFUSE_SETUP.md for installation instructions
+  # Langfuse requires ClickHouse and additional dependencies
+  # For simpler setup, use the standalone Langfuse installation guide
 
   # vLLM for high-performance LLM inference (optional)
   # Uncomment if you want to use vLLM
@@ -144,7 +101,10 @@ services:
       - POSTGRES_PASSWORD=text2sql123
       - POSTGRES_DB=text2sql_db
       - OLLAMA_HOST=http://ollama:11434
-      - LANGFUSE_HOST=http://langfuse-server:3000
+      # Langfuse is optional - uncomment and configure if installed separately
+      # - LANGFUSE_HOST=http://localhost:53002
+      # - LANGFUSE_PUBLIC_KEY=pk-xxx
+      # - LANGFUSE_SECRET_KEY=sk-xxx
     volumes:
       - ./notebooks:/workspace/notebooks
       - ./src:/workspace/src
@@ -164,7 +124,6 @@ volumes:
   postgres_data:
   ollama_data:
   open_webui_data:
-  clickhouse_data:
   # vllm_data:
 
 networks:
