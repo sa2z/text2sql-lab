@@ -1,0 +1,140 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with pgvector extension
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: text2sql-postgres
+    environment:
+      POSTGRES_USER: text2sql
+      POSTGRES_PASSWORD: text2sql123
+      POSTGRES_DB: text2sql_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U text2sql"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - text2sql-network
+
+  # Ollama for LLM management
+  ollama:
+    image: ollama/ollama:latest
+    container_name: text2sql-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    networks:
+      - text2sql-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # Open WebUI for model management interface
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: text2sql-open-webui
+    ports:
+      - "3000:8080"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - WEBUI_SECRET_KEY=text2sql-secret-key-change-in-production
+    volumes:
+      - open_webui_data:/app/backend/data
+    depends_on:
+      - ollama
+    networks:
+      - text2sql-network
+
+  # Langfuse for LLM observability and monitoring
+  langfuse-server:
+    image: langfuse/langfuse:latest
+    container_name: text2sql-langfuse
+    ports:
+      - "3001:3000"
+    environment:
+      - DATABASE_URL=postgresql://text2sql:text2sql123@postgres:5432/langfuse_db
+      - NEXTAUTH_URL=http://localhost:3001
+      - NEXTAUTH_SECRET=langfuse-secret-key-change-in-production
+      - SALT=langfuse-salt-change-in-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - text2sql-network
+
+  # vLLM for high-performance LLM inference (optional)
+  # Uncomment if you want to use vLLM
+  # vllm:
+  #   image: vllm/vllm-openai:latest
+  #   container_name: text2sql-vllm
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - MODEL_NAME=microsoft/Phi-3-mini-4k-instruct
+  #   volumes:
+  #     - vllm_data:/root/.cache/huggingface
+  #   command: --model microsoft/Phi-3-mini-4k-instruct --host 0.0.0.0 --port 8000
+  #   networks:
+  #     - text2sql-network
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: all
+  #             capabilities: [gpu]
+
+  # Jupyter Lab for notebooks
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile.jupyter
+    container_name: text2sql-jupyter
+    ports:
+      - "8888:8888"
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=text2sql
+      - POSTGRES_PASSWORD=text2sql123
+      - POSTGRES_DB=text2sql_db
+      - OLLAMA_HOST=http://ollama:11434
+      - LANGFUSE_HOST=http://langfuse-server:3000
+    volumes:
+      - ./notebooks:/workspace/notebooks
+      - ./src:/workspace/src
+      - ./data:/workspace/data
+      - ./scripts:/workspace/scripts
+    working_dir: /workspace
+    command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='' --NotebookApp.password=''
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    networks:
+      - text2sql-network
+
+volumes:
+  postgres_data:
+  ollama_data:
+  open_webui_data:
+  # vllm_data:
+
+networks:
+  text2sql-network:
+    driver: bridge
