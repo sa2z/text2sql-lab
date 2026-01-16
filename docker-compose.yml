@@ -58,53 +58,17 @@ services:
     networks:
       - text2sql-network
 
-  # ClickHouse for Langfuse analytics
-  clickhouse:
-    image: clickhouse/clickhouse-server:latest
-    container_name: text2sql-clickhouse
-    ports:
-      - "58123:8123"
-      - "59000:9000"
-    environment:
-      - CLICKHOUSE_DB=langfuse
-      - CLICKHOUSE_USER=langfuse
-      - CLICKHOUSE_PASSWORD=langfuse123
-      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
-    volumes:
-      - clickhouse_data:/var/lib/clickhouse
-    healthcheck:
-      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - text2sql-network
-
-  # Langfuse for LLM observability and monitoring
-  langfuse-server:
-    image: langfuse/langfuse:latest
-    container_name: text2sql-langfuse
-    ports:
-      - "53002:3000"
-    environment:
-      - DATABASE_URL=postgresql://text2sql:text2sql123@postgres:5432/langfuse_db
-      - NEXTAUTH_URL=http://localhost:53002
-      - NEXTAUTH_SECRET=langfuse-secret-key-change-in-production
-      - SALT=langfuse-salt-change-in-production
-      - CLICKHOUSE_URL=http://clickhouse:8123
-      - CLICKHOUSE_USER=langfuse
-      - CLICKHOUSE_PASSWORD=langfuse123
-      - LANGFUSE_INIT_ORG_ID=text2sql-org
-      - LANGFUSE_INIT_ORG_NAME=Text2SQL Lab
-      - LANGFUSE_INIT_PROJECT_ID=text2sql-project
-      - LANGFUSE_INIT_PROJECT_NAME=Text2SQL Project
-    depends_on:
-      postgres:
-        condition: service_healthy
-      clickhouse:
-        condition: service_healthy
-    networks:
-      - text2sql-network
+  # =============================================================================
+  # Langfuse 및 ClickHouse는 복잡한 의존성으로 인해 별도 설치를 권장합니다.
+  # 
+  # Langfuse는 LLM 관찰성(observability) 및 모니터링을 위한 도구이며,
+  # ClickHouse, Redis 등 여러 의존성을 필요로 합니다.
+  # 
+  # 별도 설치 가이드: docs/LANGFUSE_SETUP.md
+  # =============================================================================
+  # 
+  # 참고: Langfuse 없이도 Text2SQL 핵심 기능은 모두 사용 가능합니다.
+  # Langfuse는 프로덕션 환경에서 LLM 호출을 추적하고 분석할 때 유용합니다.
 
   # vLLM for high-performance LLM inference (optional)
   # Uncomment if you want to use vLLM
@@ -144,7 +108,6 @@ services:
       - POSTGRES_PASSWORD=text2sql123
       - POSTGRES_DB=text2sql_db
       - OLLAMA_HOST=http://ollama:11434
-      - LANGFUSE_HOST=http://langfuse-server:3000
     volumes:
       - ./notebooks:/workspace/notebooks
       - ./src:/workspace/src
@@ -164,7 +127,6 @@ volumes:
   postgres_data:
   ollama_data:
   open_webui_data:
-  clickhouse_data:
   # vllm_data:
 
 networks:
