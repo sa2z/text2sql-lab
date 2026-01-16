@@ -15,6 +15,7 @@ help:
 	@echo "  make install-model  - Install Llama2 model in Ollama"
 	@echo "  make shell-db       - Open PostgreSQL shell"
 	@echo "  make shell-jupyter  - Open Jupyter container shell"
+	@echo "  make shell-n8n      - Open n8n container shell"
 	@echo "  make backup-db      - Backup database"
 	@echo "  make test           - Run basic connectivity tests"
 	@echo ""
@@ -29,6 +30,7 @@ start:
 	@echo "  - JupyterLab: http://localhost:58889"
 	@echo "  - Open-WebUI: http://localhost:53001"
 	@echo "  - Langfuse:   http://localhost:53002"
+	@echo "  - n8n:        http://localhost:55678 (admin/admin123)"
 	@echo ""
 	@echo "Don't forget to install an LLM model:"
 	@echo "  make install-model"
@@ -108,6 +110,10 @@ shell-db:
 shell-jupyter:
 	docker exec -it text2sql-jupyter bash
 
+# Open n8n shell
+shell-n8n:
+	docker exec -it text2sql-n8n sh
+
 # Backup database
 backup-db:
 	@echo "Backing up database..."
@@ -137,6 +143,9 @@ test:
 	@echo ""
 	@echo "Testing Open-WebUI..."
 	@curl -s http://localhost:53001 > /dev/null && echo "✓ Open-WebUI is ready" || echo "✗ Open-WebUI is not ready"
+	@echo ""
+	@echo "Testing n8n..."
+	@curl -s http://localhost:55678 > /dev/null && echo "✓ n8n is ready" || echo "✗ n8n is not ready"
 	@echo ""
 
 # View resource usage

@@ -11,6 +11,7 @@
 - 📊 **Langfuse** - LLM 모니터링 및 관찰성
 - 🔬 **JupyterLab** - 대화형 노트북 환경
 - 📚 **LangChain/LangGraph** - AI 에이전트 워크플로우
+- 🔄 **n8n** - 워크플로우 자동화 도구
 - 🎨 **시각화 도구** - 차트 및 그래프 생성
 
 ## 🚀 빠른 시작
@@ -45,6 +46,7 @@ docker-compose logs -f
 - **JupyterLab**: http://localhost:58889 (토큰 없이 접속)
 - **Open-WebUI**: http://localhost:53001
 - **Langfuse**: http://localhost:53002
+- **n8n**: http://localhost:55678 (사용자명: admin, 비밀번호: admin123)
 - **PostgreSQL**: localhost:55433
 - **Ollama API**: http://localhost:51435
 
@@ -204,6 +206,31 @@ viz.show()
 LANGFUSE_PUBLIC_KEY=pk-xxx
 LANGFUSE_SECRET_KEY=sk-xxx
 ```
+
+### n8n 워크플로우 자동화
+
+n8n을 사용하여 Text2SQL 시스템을 자동화할 수 있습니다:
+
+#### 🔄 n8n (워크플로우 자동화)
+- **포트**: 55678
+- **접속**: http://localhost:55678
+- **사용자명**: admin
+- **비밀번호**: admin123 (변경 필요!)
+
+**주요 기능**:
+- 스케줄링된 SQL 쿼리 실행
+- Slack/Discord 봇 연동
+- REST API 엔드포인트 생성
+- 데이터 파이프라인 구축
+
+자세한 내용: `docs/N8N_INTEGRATION.md`
+
+**빠른 시작**:
+1. http://localhost:55678 접속
+2. admin/admin123로 로그인
+3. `workflows/` 디렉토리에서 템플릿 가져오기
+4. PostgreSQL Credentials 설정
+5. 워크플로우 활성화
 
 ## 🎯 주요 기능
 
