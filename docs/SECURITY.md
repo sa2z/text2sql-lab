@@ -4,6 +4,42 @@
 
 This document outlines the security measures implemented in text2sql-lab and known limitations.
 
+## Dependency Security Updates
+
+The following dependencies have been updated to address known vulnerabilities:
+
+### JupyterLab (Updated to 4.2.5)
+- **Previous version**: 4.0.10
+- **Vulnerabilities fixed**:
+  - HTML injection leading to DOM Clobbering (CVE: multiple)
+  - Authentication and CSRF token leak vulnerability
+- **Impact**: High - Could allow attackers to inject malicious HTML or steal authentication tokens
+- **Mitigation**: Updated to version 4.2.5
+
+### LangChain Community (Updated to 0.3.27)
+- **Previous version**: 0.0.10
+- **Vulnerabilities fixed**:
+  - XML External Entity (XXE) Attacks
+  - SSRF vulnerability in RequestsToolkit component
+  - Pickle deserialization of untrusted data
+- **Impact**: Critical - Could allow remote code execution or data exfiltration
+- **Mitigation**: Updated to version 0.3.27
+
+### LangChain Experimental (Updated to 0.0.61)
+- **Previous version**: 0.0.47
+- **Vulnerabilities fixed**:
+  - Code execution via Python REPL access
+  - Arbitrary code execution vulnerability
+- **Impact**: Critical - Could allow arbitrary code execution
+- **Mitigation**: Updated to version 0.0.61
+
+### SQLParse (Updated to 0.5.0)
+- **Previous version**: 0.4.4
+- **Vulnerabilities fixed**:
+  - Denial of Service when parsing heavily nested lists
+- **Impact**: Medium - Could cause service disruption
+- **Mitigation**: Updated to version 0.5.0
+
 ## Implemented Security Measures
 
 ### 1. SQL Injection Prevention

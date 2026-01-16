@@ -1,5 +1,5 @@
 # Core Data Science
-jupyterlab==4.0.10
+jupyterlab==4.2.5  # Updated from 4.0.10 - fixes HTML injection and auth token leak vulnerabilities
 pandas==2.1.4
 numpy==1.26.2
 matplotlib==3.8.2
@@ -13,8 +13,8 @@ pgvector==0.2.4
 
 # LLM and AI
 langchain==0.1.0
-langchain-community==0.0.10
-langchain-experimental==0.0.47
+langchain-community==0.3.27  # Updated from 0.0.10 - fixes XXE, SSRF, and pickle deserialization vulnerabilities
+langchain-experimental==0.0.61  # Updated from 0.0.47 - fixes arbitrary code execution vulnerabilities
 langgraph==0.0.20
 openai==1.6.1
 tiktoken==0.5.2
@@ -34,7 +34,7 @@ httpx==0.26.0
 tenacity==8.2.3
 
 # SQL and Text2SQL
-sqlparse==0.4.4
+sqlparse==0.5.0  # Updated from 0.4.4 - fixes DoS vulnerability
 
 # Visualization
 ipywidgets==8.1.1
